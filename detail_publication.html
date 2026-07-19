@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block titre %}{{ pub.contenu[:40] }} — Wend'Kugri{% endblock %}
+
+{% block contenu %}
+{% include "_fiche_publication.html" %}
+
+<h2 class="font-titre text-lg text-vert-fonce mt-6 mb-3">
+  {% if pub.type_publication == 'question' %}Réponses de la communauté{% else %}Commentaires{% endif %}
+  ({{ commentaires|length }})
+</h2>
+
+<form method="post" action="{{ url_for('commenter', publication_id=pub.id) }}" class="flex gap-2 mb-5">
+  <input type="text" name="contenu" required maxlength="500"
+         placeholder="{{ 'Proposer une réponse…' if pub.type_publication == 'question' else 'Ajouter un commentaire utile…' }}"
+         class="flex-1 rounded-xl border border-bordurebf px-3 py-2.5 text-sm">
+  <button type="submit" class="bg-vert text-white rounded-xl px-4 text-sm font-semibold">Envoyer</button>
+</form>
+
+<div class="space-y-3">
+  {% for c in commentaires %}
+  <div class="rounded-xl border border-bordurebf bg-carte p-3">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="w-6 h-6 rounded-full bg-vert-clair flex items-center justify-center text-[11px] font-semibold text-vert-fonce">{{ c.auteur.nom[0]|upper }}</span>
+      <span class="text-xs font-semibold">{{ c.auteur.nom }}</span>
+      <span class="text-[11px] text-grisbf">{{ c.date_creation | temps_ecoule }}</span>
+      {% if c.marque_utile %}<span class="text-[11px] text-vert-fonce font-medium">· Réponse utile ✔</span>{% endif %}
+    </div>
+    <p class="text-sm">{{ c.contenu }}</p>
+  </div>
+  {% else %}
+  <p class="text-sm text-grisbf text-center py-6">Aucune réponse pour l'instant.</p>
+  {% endfor %}
+</div>
+{% endblock %}

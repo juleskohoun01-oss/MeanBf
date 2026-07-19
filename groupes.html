@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block titre %}Groupes d'Étude — Wend'Kugri{% endblock %}
+
+{% block contenu %}
+<h1 class="font-titre text-2xl text-vert-fonce mb-1">👥 Groupes d'Étude</h1>
+<p class="text-sm text-grisbf mb-5">Rejoignez un salon pour réviser un concours ou avancer sur un projet à plusieurs.</p>
+
+<details class="mb-5 bg-carte border border-bordurebf rounded-2xl p-4">
+  <summary class="text-sm font-semibold text-vert-fonce cursor-pointer">+ Créer un nouveau groupe</summary>
+  <form method="post" class="space-y-3 mt-3">
+    <input type="text" name="nom" required placeholder="Nom du groupe (ex : Révision ENAM 2026)"
+           class="w-full rounded-xl border border-bordurebf px-3 py-2.5 text-sm">
+    <select name="domaine" required class="w-full rounded-xl border border-bordurebf px-3 py-2.5 text-sm">
+      <option value="">Domaine…</option>
+      {% for d in DOMAINES %}<option value="{{ d }}">{{ d }}</option>{% endfor %}
+    </select>
+    <textarea name="description" rows="2" placeholder="Description courte (optionnel)"
+              class="w-full rounded-xl border border-bordurebf px-3 py-2.5 text-sm"></textarea>
+    <button type="submit" class="w-full bg-vert text-white rounded-xl py-2.5 text-sm font-semibold">Créer le groupe</button>
+  </form>
+</details>
+
+<div class="space-y-3">
+  {% for g in groupes %}
+  <a href="{{ url_for('detail_groupe', groupe_id=g.id) }}" class="block bg-carte border border-bordurebf rounded-xl p-4">
+    <div class="flex justify-between items-start">
+      <div>
+        <p class="font-semibold">{{ g.nom }}</p>
+        <p class="tag-domaine text-vert-fonce mt-0.5">#{{ g.domaine }}</p>
+      </div>
+      <span class="font-donnee text-xs text-grisbf shrink-0">{{ g.nb_membres() }} membre{{ 's' if g.nb_membres() != 1 }}</span>
+    </div>
+    {% if g.description %}<p class="text-sm text-grisbf mt-2">{{ g.description }}</p>{% endif %}
+  </a>
+  {% else %}
+  <p class="text-sm text-grisbf text-center py-10">Aucun groupe pour l'instant. Créez le premier !</p>
+  {% endfor %}
+</div>
+{% endblock %}

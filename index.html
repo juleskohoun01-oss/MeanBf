@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block titre %}Fil Savoir — Wend'Kugri{% endblock %}
+
+{% block contenu %}
+
+  <!-- ============ BANDEAU DÉFI DU JOUR ============ -->
+  {% if defi_du_jour %}
+  <a id="bandeau-defi" href="{{ url_for('defi_du_jour') }}"
+     class="block rounded-2xl bg-vert-fonce text-white p-4 mb-5 relative overflow-hidden">
+    <p class="font-donnee text-[11px] uppercase tracking-wide text-or">Défi du jour · {{ defi_du_jour.domaine }}</p>
+    <p class="font-titre text-lg mt-1 leading-snug">{{ defi_du_jour.question }}</p>
+    <p class="text-xs text-vert-clair/80 mt-2">+{{ defi_du_jour.points_recompense }} points de Connaissance · Répondre →</p>
+  </a>
+  {% endif %}
+
+  <!-- ============ FILTRES ============ -->
+  <form method="get" class="mb-5 space-y-2">
+    <div class="grid grid-cols-2 gap-2">
+      <select name="domaine" onchange="this.form.submit()"
+              class="w-full rounded-xl border border-bordurebf bg-carte px-3 py-2 text-sm font-donnee">
+        <option value="">Tous domaines</option>
+        {% for d in DOMAINES %}
+        <option value="{{ d }}" {{ 'selected' if filtre_domaine == d }}>{{ d }}</option>
+        {% endfor %}
+      </select>
+      <select name="ville" onchange="this.form.submit()"
+              class="w-full rounded-xl border border-bordurebf bg-carte px-3 py-2 text-sm font-donnee">
+        <option value="">Toutes villes</option>
+        {% for v in VILLES_BF %}
+        <option value="{{ v }}" {{ 'selected' if filtre_ville == v }}>{{ v }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="flex gap-2 overflow-x-auto pb-1">
+      <a href="{{ url_for('fil_actualite', domaine=filtre_domaine, ville=filtre_ville) }}"
+         class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border {{ 'bg-vert text-white border-vert' if not filtre_type else 'border-bordurebf text-grisbf' }}">Tout</a>
+      {% for cle, infos in TYPES_PUBLICATION.items() %}
+      <a href="{{ url_for('fil_actualite', domaine=filtre_domaine, ville=filtre_ville, type=cle) }}"
+         class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border {{ 'bg-vert text-white border-vert' if filtre_type == cle else 'border-bordurebf text-grisbf' }}">{{ infos.label }}</a>
+      {% endfor %}
+    </div>
+  </form>
+
+  <!-- ============ LISTE DES FICHES-SAVOIR ============ -->
+  {% if publications %}
+    {% for pub in publications %}
+      {% include "_fiche_publication.html" %}
+    {% endfor %}
+  {% else %}
+    <div class="text-center py-16">
+      <p class="font-titre text-xl text-vert-fonce mb-2">Aucune publication pour ce filtre.</p>
+      <p class="text-sm text-grisbf mb-5">Soyez le premier à apporter une connaissance à la communauté.</p>
+      <a href="{{ url_for('publier') }}" class="inline-block bg-vert text-white rounded-xl px-5 py-2.5 text-sm font-medium">Publier maintenant</a>
+    </div>
+  {% endif %}
+
+{% endblock %}

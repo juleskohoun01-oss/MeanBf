@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block titre %}Classement — Wend'Kugri{% endblock %}
+
+{% block contenu %}
+<h1 class="font-titre text-2xl text-vert-fonce mb-1">🏅 Maîtres du Savoir</h1>
+<p class="text-sm text-grisbf mb-5">Classement des membres les plus actifs par points de Connaissance.</p>
+
+<form method="get" class="mb-5">
+  <select name="domaine" onchange="this.form.submit()"
+          class="w-full rounded-xl border border-bordurebf bg-carte px-3 py-2 text-sm font-donnee">
+    <option value="">Tous domaines</option>
+    {% for d in DOMAINES %}
+    <option value="{{ d }}" {{ 'selected' if filtre_domaine == d }}>{{ d }}</option>
+    {% endfor %}
+  </select>
+</form>
+
+<div class="space-y-2">
+  {% for u in meilleurs %}
+  <a href="{{ url_for('profil', utilisateur_id=u.id) }}" class="flex items-center gap-3 bg-carte border border-bordurebf rounded-xl p-3">
+    <span class="w-7 h-7 rounded-full flex items-center justify-center font-donnee text-xs font-semibold shrink-0
+      {% if loop.index == 1 %} bg-or text-white
+      {% elif loop.index == 2 %} bg-grisbf/30 text-encre
+      {% elif loop.index == 3 %} bg-rouge/20 text-rouge
+      {% else %} bg-fond text-grisbf {% endif %}">
+      {{ loop.index }}
+    </span>
+    <span class="w-8 h-8 rounded-full bg-vert-clair flex items-center justify-center font-titre font-semibold text-vert-fonce text-sm shrink-0">
+      {{ u.nom[0]|upper }}
+    </span>
+    <span class="min-w-0 flex-1">
+      <span class="flex items-center gap-1">
+        <span class="text-sm font-semibold truncate">{{ u.nom }}</span>
+        {% if u.contributeur_verifie %}<span class="text-or text-xs">✔</span>{% endif %}
+      </span>
+      <span class="block text-xs text-grisbf truncate">{{ u.etiquette_profil() }}</span>
+    </span>
+    <span class="font-donnee text-sm font-semibold text-vert-fonce shrink-0">{{ u.points }} pts</span>
+  </a>
+  {% else %}
+  <p class="text-sm text-grisbf text-center py-10">Aucun membre dans ce domaine pour l'instant.</p>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block titre %}{{ profil_utilisateur.nom }} — Wend'Kugri{% endblock %}
+
+{% block contenu %}
+<div class="bg-carte border border-bordurebf rounded-2xl p-5 mb-6 text-center">
+  <span class="inline-flex w-16 h-16 rounded-full bg-vert-clair border border-vert/30 items-center justify-center font-titre font-semibold text-2xl text-vert-fonce mb-2">
+    {{ profil_utilisateur.nom[0]|upper }}
+  </span>
+  <h1 class="font-titre text-xl flex items-center justify-center gap-1.5">
+    {{ profil_utilisateur.nom }}
+    {% if profil_utilisateur.contributeur_verifie %}
+    <span class="inline-flex items-center gap-1 text-xs bg-or-clair text-or border border-or/30 rounded-full px-2 py-0.5 font-donnee">✔ Contributeur Vérifié</span>
+    {% endif %}
+  </h1>
+  <p class="text-sm text-grisbf mt-1">{{ profil_utilisateur.etiquette_profil() }}</p>
+
+  <div class="flex justify-center gap-6 mt-4 pt-4 border-t border-bordurebf">
+    <div>
+      <p class="font-donnee text-lg font-semibold text-vert-fonce">{{ profil_utilisateur.points }}</p>
+      <p class="text-[11px] text-grisbf uppercase tracking-wide">Points</p>
+    </div>
+    <div>
+      <p class="font-donnee text-lg font-semibold text-vert-fonce">{{ publications|length }}</p>
+      <p class="text-[11px] text-grisbf uppercase tracking-wide">Publications</p>
+    </div>
+  </div>
+
+  {% if utilisateur_actuel and utilisateur_actuel.id == profil_utilisateur.id %}
+  <a href="{{ url_for('modifier_profil') }}" class="inline-block mt-4 text-sm font-medium text-vert-fonce underline">Modifier mon profil</a>
+  {% endif %}
+</div>
+
+<h2 class="font-titre text-lg text-vert-fonce mb-3">Publications</h2>
+{% if publications %}
+  {% for pub in publications %}
+    {% include "_fiche_publication.html" %}
+  {% endfor %}
+{% else %}
+  <p class="text-sm text-grisbf text-center py-10">Aucune publication pour l'instant.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,108 @@
+<!--
+  _fiche_publication.html — Wend'Kugri
+  Composant inclus partout où une publication est affichée (fil, profil, bibliothèque).
+  Attend une variable `pub` (objet Publication) dans le contexte.
+  Copyright by Computer Science Solution-BF
+-->
+{% set deja_aime = pub.likes | selectattr('utilisateur_id', 'equalto', utilisateur_actuel.id) | list | length > 0 %}
+<article class="fiche-savoir" data-type="{{ pub.type_publication }}" data-etiquette="{{ pub.infos_type().label }}">
+
+  <!-- En-tête : auteur + méta -->
+  <div class="flex items-start justify-between gap-2 mb-2">
+    <a href="{{ url_for('profil', utilisateur_id=pub.auteur.id) }}" class="flex items-center gap-2 min-w-0">
+      <span class="w-8 h-8 shrink-0 rounded-full bg-vert-clair border border-vert/30 flex items-center justify-center font-titre font-semibold text-vert-fonce text-sm">
+        {{ pub.auteur.nom[0]|upper }}
+      </span>
+      <span class="min-w-0">
+        <span class="flex items-center gap-1">
+          <span class="text-sm font-semibold text-encre truncate">{{ pub.auteur.nom }}</span>
+          {% if pub.auteur.contributeur_verifie %}
+          <span title="Contributeur Vérifié" class="text-or text-xs">✔</span>
+          {% endif %}
+        </span>
+        <span class="block text-xs text-grisbf">{{ pub.auteur.etiquette_profil() }}</span>
+      </span>
+    </a>
+    <span class="text-xs text-grisbf shrink-0">{{ pub.date_publication | temps_ecoule }}</span>
+  </div>
+
+  <!-- Tags domaine / ville -->
+  <div class="flex flex-wrap items-center gap-2 mb-2">
+    <span class="tag-domaine bg-vert-clair text-vert-fonce px-2 py-0.5 rounded">#{{ pub.domaine }}</span>
+    {% if pub.ville %}<span class="tag-domaine text-grisbf">{{ pub.ville }}</span>{% endif %}
+    {% if pub.type_publication == 'question' and pub.resolue %}
+    <span class="tag-domaine bg-or-clair text-or px-2 py-0.5 rounded">Résolue</span>
+    {% endif %}
+  </div>
+
+  <!-- ===== Contenu selon le type ===== -->
+
+  {% if pub.type_publication in ('astuce', 'question') %}
+    <p class="text-[15px] leading-relaxed whitespace-pre-line">{{ pub.contenu }}</p>
+
+  {% elif pub.type_publication == 'cours' %}
+    <p class="text-[15px] leading-relaxed whitespace-pre-line mb-3">{{ pub.contenu }}</p>
+    <div class="rounded-xl border border-bordurebf bg-fond p-3">
+      <div class="flex items-center gap-2 mb-2">
+        <svg class="w-5 h-5 text-or shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5"/></svg>
+        <a href="{{ url_for('fichier_uploade', sous_dossier='cours', nom_fichier=pub.nom_fichier) }}" target="_blank"
+           class="text-sm font-medium text-vert-fonce underline decoration-vert/30 truncate">{{ pub.nom_fichier.split('_', 1)[-1] if pub.nom_fichier else 'Document' }}</a>
+      </div>
+
+      {% if pub.resume_auto %}
+      <details class="mt-1">
+        <summary class="text-xs font-donnee text-or cursor-pointer">✨ Résumé Wend'Kugri IA (5 points clés)</summary>
+        <p class="text-sm mt-2 whitespace-pre-line text-grisbf">{{ pub.resume_auto }}</p>
+      </details>
+      {% else %}
+      <button type="button" class="text-xs font-donnee text-or"
+              onclick="fetch('/api/resumer-publication/{{ pub.id }}').then(r=>r.json()).then(d=>{
+                if(d.succes){ this.outerHTML = '<p class=\'text-sm mt-2 whitespace-pre-line text-grisbf\'>'+d.resume.replace(/\n/g,'<br>')+'</p>'; }
+                else { alert(d.message); }
+              });">✨ Résumer avec Wend'Kugri IA</button>
+      {% endif %}
+
+      <button type="button" data-action="sauvegarder-hors-ligne"
+              data-publication-id="{{ pub.id }}" data-titre="{{ pub.contenu[:60] }}" data-domaine="{{ pub.domaine }}"
+              data-url="{{ url_for('fichier_uploade', sous_dossier='cours', nom_fichier=pub.nom_fichier) }}"
+              class="bouton-action mt-2 !px-0">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>
+        <span data-libelle>Sauvegarder hors-ligne</span>
+      </button>
+    </div>
+
+  {% elif pub.type_publication == 'video' %}
+    <p class="text-[15px] leading-relaxed whitespace-pre-line mb-3">{{ pub.contenu }}</p>
+    <div class="rounded-xl overflow-hidden bg-black aspect-video">
+      {% if pub.lien_video %}
+        <iframe class="w-full h-full" src="{{ pub.lien_video | youtube_embed }}" title="Vidéo tuto" allowfullscreen></iframe>
+      {% elif pub.nom_fichier_video %}
+        <video class="w-full h-full" controls preload="metadata">
+          <source src="{{ url_for('fichier_uploade', sous_dossier='videos', nom_fichier=pub.nom_fichier_video) }}">
+        </video>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div class="fiche-savoir__separateur"></div>
+
+  <!-- Actions -->
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-1">
+      <button type="button" data-action="aimer" data-publication-id="{{ pub.id }}"
+              class="bouton-action {{ 'actif' if deja_aime }}">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="{{ 'currentColor' if deja_aime else 'none' }}" stroke="currentColor" stroke-width="1.8">
+          <path d="M12 21s-7.5-4.87-10-9.5C.5 8 2.3 4.5 6 4.5c2 0 3.5 1.2 4.5 2.7C11.5 5.7 13 4.5 15 4.5c3.7 0 5.5 3.5 4 7-2.5 4.63-10 9.5-10 9.5Z"/>
+        </svg>
+        <span data-compteur-likes>{{ pub.nb_likes() }}</span>
+      </button>
+      <a href="{{ url_for('detail_publication', publication_id=pub.id) }}" class="bouton-action">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H5l-1.8 1.8A1 1 0 0 1 2 21V11.5a8.5 8.5 0 0 1 17 0Z"/></svg>
+        {{ pub.commentaires|length }}
+      </a>
+    </div>
+    <button type="button" data-action="signaler" data-publication-id="{{ pub.id }}" class="bouton-action" title="Signaler">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3v18M5 4h11l-2 4 2 4H5"/></svg>
+    </button>
+  </div>
+</article>

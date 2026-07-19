@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block titre %}Modifier mon profil — Wend'Kugri{% endblock %}
+
+{% block contenu %}
+<h1 class="font-titre text-2xl text-vert-fonce mb-5">Modifier mon profil</h1>
+
+<form method="post" class="space-y-3 bg-carte border border-bordurebf rounded-2xl p-5">
+  <div>
+    <label class="text-xs font-medium text-grisbf">Nom complet</label>
+    <input type="text" name="nom" value="{{ utilisateur_actuel.nom }}" required
+           class="w-full mt-1 rounded-xl border border-bordurebf px-3 py-2.5 text-sm">
+  </div>
+  <div>
+    <label class="text-xs font-medium text-grisbf">Domaine d'expertise</label>
+    <select name="domaine_expertise" class="w-full mt-1 rounded-xl border border-bordurebf px-3 py-2.5 text-sm">
+      {% for d in DOMAINES %}<option value="{{ d }}" {{ 'selected' if utilisateur_actuel.domaine_expertise==d }}>{{ d }}</option>{% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="text-xs font-medium text-grisbf">Ville</label>
+    <select name="ville" class="w-full mt-1 rounded-xl border border-bordurebf px-3 py-2.5 text-sm">
+      {% for v in VILLES_BF %}<option value="{{ v }}" {{ 'selected' if utilisateur_actuel.ville==v }}>{{ v }}</option>{% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="text-xs font-medium text-grisbf">Niveau</label>
+    <select name="niveau" class="w-full mt-1 rounded-xl border border-bordurebf px-3 py-2.5 text-sm">
+      {% for n in NIVEAUX %}<option value="{{ n }}" {{ 'selected' if utilisateur_actuel.niveau==n }}>{{ n }}</option>{% endfor %}
+    </select>
+  </div>
+  <button type="submit" class="w-full bg-vert text-white rounded-xl py-3 text-sm font-semibold">Enregistrer</button>
+</form>
+{% endblock %}
