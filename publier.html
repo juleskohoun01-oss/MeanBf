@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block titre %}Publier — Wend'Kugri{% endblock %}
+
+{% block contenu %}
+<h1 class="font-titre text-2xl text-vert-fonce mb-1">Partager une connaissance</h1>
+<p class="text-sm text-grisbf mb-5">Seuls 4 types de contenus sont acceptés. Le tag domaine est obligatoire.</p>
+
+<form method="post" enctype="multipart/form-data" class="space-y-5">
+
+  <!-- ===== 1. Choix du type de publication ===== -->
+  <div class="grid grid-cols-2 gap-3">
+    <div class="carte-type-choix border border-bordurebf rounded-xl p-3 bg-carte" data-type="astuce">
+      <svg class="w-5 h-5 text-vert mb-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.5.4.6 1 .6 1.6v.1h6v-.1c0-.6.1-1.2.6-1.6A6 6 0 0 0 12 3Z"/></svg>
+      <p class="text-sm font-semibold">Astuce / Texte</p>
+      <p class="text-xs text-grisbf">Max 500 caractères</p>
+    </div>
+    <div class="carte-type-choix border border-bordurebf rounded-xl p-3 bg-carte" data-type="cours">
+      <svg class="w-5 h-5 text-or mb-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5"/></svg>
+      <p class="text-sm font-semibold">Cours / PDF</p>
+      <p class="text-xs text-grisbf">PDF, PPT, DOC</p>
+    </div>
+    <div class="carte-type-choix border border-bordurebf rounded-xl p-3 bg-carte" data-type="video">
+      <svg class="w-5 h-5 text-rouge mb-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m10 9 5 3-5 3V9Z"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
+      <p class="text-sm font-semibold">Vidéo / Tuto</p>
+      <p class="text-xs text-grisbf">Lien ou upload &lt; 5 min</p>
+    </div>
+    <div class="carte-type-choix border border-bordurebf rounded-xl p-3 bg-carte" data-type="question">
+      <svg class="w-5 h-5 text-vert-fonce mb-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg>
+      <p class="text-sm font-semibold">Question</p>
+      <p class="text-xs text-grisbf">« Je bloque sur X »</p>
+    </div>
+  </div>
+  <input type="hidden" name="type_publication" id="type-publication-cache" value="">
+
+  <!-- ===== 2. Domaine (obligatoire pour tous les types) ===== -->
+  <div>
+    <label class="text-xs font-medium text-grisbf">Tag domaine <span class="text-rouge">*</span> obligatoire</label>
+    <select name="domaine" id="selecteur-domaine" required class="w-full mt-1 rounded-xl border border-bordurebf px-3 py-2.5 text-sm">
+      <option value="">Choisir un domaine…</option>
+      {% for d in DOMAINES %}<option value="{{ d }}">{{ d }}</option>{% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <label class="text-xs font-medium text-grisbf">Ville concernée (optionnel)</label>
+    <select name="ville" class="w-full mt-1 rounded-xl border border-bordurebf px-3 py-2.5 text-sm">
+      <option value="">Toutes villes</option>
+      {% for v in VILLES_BF %}<option value="{{ v }}">{{ v }}</option>{% endfor %}
+    </select>
+  </div>
+
+  <!-- ===== 3. Contenu texte commun (astuce / cours / vidéo / question) ===== -->
+  <div>
+    <div class="flex justify-between items-baseline">
+      <label class="text-xs font-medium text-grisbf" id="libelle-contenu">Contenu</label>
+      <span id="compteur-caracteres" class="font-donnee text-[11px] text-grisbf">0 / 500</span>
+    </div>
+    <textarea name="contenu" id="contenu-publication" required maxlength="500" rows="4"
+              class="w-full mt-1 rounded-xl border border-bordurebf px-3 py-2.5 text-sm"
+              placeholder="Ex : Pour lutter contre les cicadelles sur le niébé, pulvériser une solution de neem le matin tôt…"></textarea>
+  </div>
+
+  <!-- ===== Section spécifique : Cours ===== -->
+  <div id="champs-cours" class="hidden space-y-2">
+    <label class="text-xs font-medium text-grisbf">Document (PDF, PPT ou DOC)</label>
+    <input type="file" name="fichier" accept=".pdf,.ppt,.pptx,.doc,.docx"
+           class="w-full rounded-xl border border-bordurebf px-3 py-2.5 text-sm bg-carte">
+    <p class="text-xs text-grisbf">Un résumé automatique en 5 points sera généré pour les fichiers PDF (Wend'Kugri IA).</p>
+  </div>
+
+  <!-- ===== Section spécifique : Vidéo ===== -->
+  <div id="champs-video" class="hidden space-y-2">
+    <label class="text-xs font-medium text-grisbf">Lien YouTube</label>
+    <input type="url" name="lien_video" placeholder="https://www.youtube.com/watch?v=…"
+           class="w-full rounded-xl border border-bordurebf px-3 py-2.5 text-sm">
+    <p class="text-xs text-center text-grisbf">— ou —</p>
+    <label class="text-xs font-medium text-grisbf">Vidéo uploadée (moins de 5 minutes)</label>
+    <input type="file" name="fichier_video" accept=".mp4,.webm,.mov"
+           class="w-full rounded-xl border border-bordurebf px-3 py-2.5 text-sm bg-carte">
+  </div>
+
+  <div id="champs-astuce" class="hidden"></div>
+  <div id="champs-question" class="hidden"></div>
+
+  <button type="submit" id="bouton-publier" disabled
+          class="w-full bg-vert text-white rounded-xl py-3 text-sm font-semibold opacity-40 cursor-not-allowed transition">
+    Publier sur Wend'Kugri
+  </button>
+  <p class="text-xs text-center text-grisbf">Chaque publication est vérifiée par l'IA anti-désordre avant mise en ligne.</p>
+</form>
+{% endblock %}

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<!-- 
+  base.html — Wend'Kugri
+  Gabarit commun à toutes les pages : en-tête, navigation basse mobile,
+  messages flash, polices et thème de couleurs du Burkina Faso.
+  Copyright by Computer Science Solution-BF
+-->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>{% block titre %}Wend'Kugri — Le Lieu de la Connaissance{% endblock %}</title>
+
+  <!-- Polices : Newsreader (titres, esprit "livre/savoir"), IBM Plex Sans (texte), IBM Plex Mono (tags & données) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- TailwindCSS via CDN + thème personnalisé aux couleurs du Burkina Faso -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            vert: { DEFAULT: '#059669', fonce: '#064E3B', clair: '#ECFDF5' },
+            or:   { DEFAULT: '#F59E0B', clair: '#FFFBEB' },
+            rouge:{ DEFAULT: '#DC2626', clair: '#FEF2F2' },
+            fond: '#FBF9F4',
+            carte: '#FFFFFF',
+            encre: '#241F18',
+            grisbf: '#57534E',
+            bordurebf: '#E7E2D6',
+          },
+          fontFamily: {
+            titre: ['"Newsreader"', 'serif'],
+            corps: ['"IBM Plex Sans"', 'sans-serif'],
+            donnee: ['"IBM Plex Mono"', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-fond text-encre font-corps min-h-screen flex flex-col pb-20">
+
+  <!-- ============ EN-TÊTE ============ -->
+  <header class="sticky top-0 z-40 bg-carte border-b border-bordurebf">
+    <div class="max-w-2xl mx-auto flex items-center justify-between px-4 py-3">
+      <a href="{{ url_for('fil_actualite') if utilisateur_actuel else url_for('connexion') }}" class="flex items-center gap-2">
+        <span class="w-9 h-9 rounded-full bg-vert-fonce flex items-center justify-center text-or font-titre font-semibold text-lg">W</span>
+        <span class="font-titre font-semibold text-lg leading-none text-vert-fonce">Wend'Kugri</span>
+      </a>
+
+      {% if utilisateur_actuel %}
+      <div class="flex items-center gap-3">
+        <span class="hidden sm:inline-flex items-center gap-1 font-donnee text-xs bg-or-clair text-or border border-or/30 rounded-full px-2.5 py-1">
+          ★ {{ utilisateur_actuel.points }} pts
+        </span>
+        <a href="{{ url_for('profil', utilisateur_id=utilisateur_actuel.id) }}"
+           class="w-9 h-9 rounded-full bg-vert-clair border border-vert/30 flex items-center justify-center font-titre font-semibold text-vert-fonce"
+           title="{{ utilisateur_actuel.nom }}">
+          {{ utilisateur_actuel.nom[0]|upper }}
+        </a>
+      </div>
+      {% endif %}
+    </div>
+    <!-- Filet tricolore signature (clin d'œil discret aux couleurs du Burkina Faso) -->
+    <div class="h-[3px] w-full flex">
+      <div class="flex-1 bg-vert"></div>
+      <div class="flex-1 bg-or"></div>
+      <div class="flex-1 bg-rouge"></div>
+    </div>
+  </header>
+
+  <!-- ============ MESSAGES FLASH ============ -->
+  <div class="max-w-2xl mx-auto w-full px-4 mt-3 space-y-2">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for categorie, message in messages %}
+        <div class="rounded-xl px-4 py-3 text-sm font-medium border
+          {% if categorie == 'erreur' %} bg-rouge-clair text-rouge border-rouge/30
+          {% elif categorie == 'succes' %} bg-vert-clair text-vert-fonce border-vert/30
+          {% else %} bg-or-clair text-or border-or/30 {% endif %}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endwith %}
+  </div>
+
+  <!-- ============ CONTENU DE LA PAGE ============ -->
+  <main class="flex-1 max-w-2xl mx-auto w-full px-4 py-4">
+    {% block contenu %}{% endblock %}
+  </main>
+
+  <!-- ============ PIED DE PAGE ============ -->
+  <footer class="max-w-2xl mx-auto w-full px-4 py-6 text-center text-xs text-grisbf">
+    Wend'Kugri — « Le Lieu de la Connaissance » — © {{ annee_actuelle }} Computer Science Solution-BF
+  </footer>
+
+  {% if utilisateur_actuel %}
+  <!-- ============ NAVIGATION BASSE (mobile-first) ============ -->
+  <nav class="fixed bottom-0 inset-x-0 z-40 bg-carte border-t border-bordurebf pb-[env(safe-area-inset-bottom)]">
+    <div class="max-w-2xl mx-auto grid grid-cols-5 items-center px-2">
+      <a href="{{ url_for('fil_actualite') }}" class="nav-item {{ 'nav-actif' if request.endpoint == 'fil_actualite' }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+        <span>Fil</span>
+      </a>
+      <a href="{{ url_for('bibliotheque') }}" class="nav-item {{ 'nav-actif' if request.endpoint == 'bibliotheque' }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5V5a2 2 0 0 1 2-2h11.5v18H6a2 2 0 0 0-2 1.5"/><path d="M8 7h6M8 10.5h6"/></svg>
+        <span>Bibliothèque</span>
+      </a>
+      <a href="{{ url_for('publier') }}" class="flex flex-col items-center -mt-5">
+        <span class="w-12 h-12 rounded-full bg-vert text-white flex items-center justify-center shadow-lg shadow-vert/30 border-4 border-fond">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="w-5 h-5"><path d="M12 5v14M5 12h14"/></svg>
+        </span>
+        <span class="text-[11px] mt-0.5 text-vert-fonce font-medium">Publier</span>
+      </a>
+      <a href="{{ url_for('groupes') }}" class="nav-item {{ 'nav-actif' if request.endpoint in ['groupes','detail_groupe'] }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3"/><path d="M2.5 19.5c0-3 3-5.5 6.5-5.5s6.5 2.5 6.5 5.5"/><circle cx="17.5" cy="9" r="2.2"/><path d="M15.5 14.2c2.5.3 4.5 2.3 4.5 5.3"/></svg>
+        <span>Groupes</span>
+      </a>
+      <a href="{{ url_for('classement') }}" class="nav-item {{ 'nav-actif' if request.endpoint == 'classement' }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 6H4v1a4 4 0 0 0 3.5 4M17 6h3v1a4 4 0 0 1-3.5 4"/><path d="M12 13v3M9 20h6M10 16.5h4v3.5h-4z"/></svg>
+        <span>Classement</span>
+      </a>
+    </div>
+  </nav>
+  {% endif %}
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+  {% block script %}{% endblock %}
+</body>
+</html>

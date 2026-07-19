@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block titre %}Connexion — Wend'Kugri{% endblock %}
+
+{% block contenu %}
+<div class="max-w-md mx-auto">
+  <div class="text-center mb-6">
+    <span class="inline-flex w-14 h-14 rounded-full bg-vert-fonce items-center justify-center text-or font-titre font-semibold text-2xl mb-3">W</span>
+    <h1 class="font-titre text-2xl text-vert-fonce">Wend'Kugri</h1>
+    <p class="text-sm text-grisbf mt-1">Le Lieu de la Connaissance</p>
+  </div>
+
+  <form method="post" class="space-y-3 bg-carte border border-bordurebf rounded-2xl p-5">
+    <div>
+      <label class="text-xs font-medium text-grisbf">Email ou téléphone</label>
+      <input type="text" name="identifiant" required autofocus
+             class="w-full mt-1 rounded-xl border border-bordurebf px-3 py-2.5 text-sm" placeholder="vous@exemple.com ou 70 12 34 56">
+    </div>
+    <div>
+      <label class="text-xs font-medium text-grisbf">Mot de passe</label>
+      <input type="password" name="mot_de_passe" required
+             class="w-full mt-1 rounded-xl border border-bordurebf px-3 py-2.5 text-sm" placeholder="••••••••">
+    </div>
+    <button type="submit" class="w-full bg-vert text-white rounded-xl py-3 text-sm font-semibold mt-2">Se connecter</button>
+  </form>
+
+  <p class="text-center text-sm text-grisbf mt-4">
+    Pas encore de compte ? <a href="{{ url_for('inscription') }}" class="text-vert-fonce font-medium">S'inscrire</a>
+  </p>
+
+  <div class="mt-6 rounded-xl border border-dashed border-bordurebf p-3 text-xs text-grisbf">
+    <p class="font-semibold text-encre mb-1">Comptes de démonstration</p>
+    <p>aicha@wendkugri.bf / motdepasse123</p>
+    <p>issa@wendkugri.bf / motdepasse123</p>
+    <p>fatim@wendkugri.bf / motdepasse123</p>
+  </div>
+</div>
+{% endblock %}

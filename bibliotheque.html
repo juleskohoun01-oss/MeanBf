@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block titre %}Bibliothèque BF — Wend'Kugri{% endblock %}
+
+{% block contenu %}
+<h1 class="font-titre text-2xl text-vert-fonce mb-1">📚 Bibliothèque BF</h1>
+<p class="text-sm text-grisbf mb-5">Tous les cours et documents partagés par la communauté, classés par domaine.</p>
+
+<form method="get" class="mb-5">
+  <select name="domaine" onchange="this.form.submit()"
+          class="w-full rounded-xl border border-bordurebf bg-carte px-3 py-2 text-sm font-donnee">
+    <option value="">Tous domaines</option>
+    {% for d in DOMAINES %}
+    <option value="{{ d }}" {{ 'selected' if filtre_domaine == d }}>{{ d }}</option>
+    {% endfor %}
+  </select>
+</form>
+
+{% if cours %}
+  {% for pub in cours %}
+    {% include "_fiche_publication.html" %}
+  {% endfor %}
+{% else %}
+  <p class="text-sm text-grisbf text-center py-14">Aucun cours dans ce domaine pour l'instant.</p>
+{% endif %}
+{% endblock %}

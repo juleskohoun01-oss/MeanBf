@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block titre %}Défi du Jour — Wend'Kugri{% endblock %}
+
+{% block contenu %}
+<h1 class="font-titre text-2xl text-vert-fonce mb-1">🏆 Défi du Jour</h1>
+<p class="text-sm text-grisbf mb-5">Une question par jour. Les meilleures réponses rapportent des points de Connaissance.</p>
+
+{% if defi %}
+  <div class="rounded-2xl bg-vert-fonce text-white p-5 mb-5">
+    <p class="font-donnee text-[11px] uppercase tracking-wide text-or">{{ defi.domaine }} · {{ defi.date_defi.strftime('%d/%m/%Y') }}</p>
+    <p class="font-titre text-xl mt-2 leading-snug">{{ defi.question }}</p>
+    <p class="text-xs text-vert-clair/80 mt-3">Récompense : +{{ defi.points_recompense }} points de Connaissance</p>
+  </div>
+
+  {% if ma_reponse %}
+    <div class="rounded-xl border border-vert/30 bg-vert-clair p-4 text-sm">
+      <p class="font-semibold text-vert-fonce mb-1">Votre réponse a été envoyée ✔</p>
+      <p class="text-grisbf">{{ ma_reponse.reponse }}</p>
+    </div>
+  {% else %}
+    <form method="post" class="space-y-3">
+      <textarea name="reponse" required rows="4" placeholder="Votre réponse…"
+                class="w-full rounded-xl border border-bordurebf px-3 py-2.5 text-sm"></textarea>
+      <button type="submit" class="w-full bg-vert text-white rounded-xl py-3 text-sm font-semibold">Envoyer ma réponse</button>
+    </form>
+  {% endif %}
+{% else %}
+  <p class="text-sm text-grisbf text-center py-10">Aucun défi programmé pour aujourd'hui. Revenez demain !</p>
+{% endif %}
+
+{% if anciens_defis %}
+<h2 class="font-titre text-lg text-vert-fonce mt-8 mb-3">Défis précédents</h2>
+<div class="space-y-2">
+  {% for d in anciens_defis %}
+  <div class="rounded-xl border border-bordurebf bg-carte p-3">
+    <p class="font-donnee text-[11px] text-grisbf">{{ d.domaine }} · {{ d.date_defi.strftime('%d/%m/%Y') }}</p>
+    <p class="text-sm mt-1">{{ d.question }}</p>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

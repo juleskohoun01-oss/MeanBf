@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block titre %}{{ groupe.nom }} — Wend'Kugri{% endblock %}
+
+{% block contenu %}
+<div class="mb-4">
+  <h1 class="font-titre text-xl text-vert-fonce">{{ groupe.nom }}</h1>
+  <p class="tag-domaine text-vert-fonce">#{{ groupe.domaine }}</p>
+  {% if groupe.description %}<p class="text-sm text-grisbf mt-1">{{ groupe.description }}</p>{% endif %}
+  <p class="text-xs text-grisbf mt-1">{{ groupe.nb_membres() }} membre{{ 's' if groupe.nb_membres() != 1 }}</p>
+
+  {% if not est_membre %}
+  <form method="post" action="{{ url_for('rejoindre_groupe', groupe_id=groupe.id) }}" class="mt-3">
+    <button type="submit" class="bg-vert text-white rounded-xl px-4 py-2 text-sm font-semibold">Rejoindre ce groupe</button>
+  </form>
+  {% endif %}
+</div>
+
+<div class="space-y-2 mb-4">
+  {% for m in messages %}
+  <div class="rounded-xl border border-bordurebf bg-carte p-3">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="w-6 h-6 rounded-full bg-vert-clair flex items-center justify-center text-[11px] font-semibold text-vert-fonce">{{ m.auteur.nom[0]|upper }}</span>
+      <span class="text-xs font-semibold">{{ m.auteur.nom }}</span>
+      <span class="text-[11px] text-grisbf">{{ m.date_creation | temps_ecoule }}</span>
+    </div>
+    <p class="text-sm">{{ m.contenu }}</p>
+  </div>
+  {% else %}
+  <p class="text-sm text-grisbf text-center py-8">Aucun message. Lancez la discussion !</p>
+  {% endfor %}
+</div>
+
+{% if est_membre %}
+<form method="post" class="flex gap-2">
+  <input type="text" name="contenu" required placeholder="Écrire un message au groupe…"
+         class="flex-1 rounded-xl border border-bordurebf px-3 py-2.5 text-sm">
+  <button type="submit" class="bg-vert text-white rounded-xl px-4 text-sm font-semibold">Envoyer</button>
+</form>
+{% endif %}
+{% endblock %}
